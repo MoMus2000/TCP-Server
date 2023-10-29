@@ -14,15 +14,17 @@ type Server struct {
 
 func NewServer(Port string) *Server {
 	return &Server{
-		Port: Port,
+		Port:   Port,
+		quitch: make(chan struct{}),
 	}
 }
 
-func (s *Server) StartServer() error {
+func (s *Server) StartServer() {
 	listener, err := net.Listen("tcp", s.Port)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	s.Listener = listener
 
 	// Accept any incoming connections
@@ -30,15 +32,15 @@ func (s *Server) StartServer() error {
 	go s.AcceptConnection()
 
 	<-s.quitch
-	return nil
 }
 
-func (s *Server) AcceptConnection() error {
+func (s *Server) AcceptConnection() {
 	for {
 		con, err := s.Listener.Accept()
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
+		fmt.Println("New Connection From, ", con.RemoteAddr().String())
 		go s.ReadFromConnection(con)
 	}
 }
