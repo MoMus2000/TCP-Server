@@ -10,12 +10,14 @@ type Server struct {
 	Port     string
 	Listener net.Listener
 	quitch   chan struct{}
+	msgChan  chan []byte
 }
 
 func NewServer(Port string) *Server {
 	return &Server{
-		Port:   Port,
-		quitch: make(chan struct{}),
+		Port:    Port,
+		quitch:  make(chan struct{}),
+		msgChan: make(chan []byte, 10),
 	}
 }
 
@@ -52,12 +54,21 @@ func (s *Server) ReadFromConnection(Con net.Conn) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Message From the server, ", string(buffer[:n]))
+
+		s.msgChan <- buffer[:n]
+		Con.Write([]byte("Thank you for your message, Special Thanks to Anthony GG For the tutorial\n"))
 	}
 }
 
 func main() {
 	fmt.Println("Starting the TCP Server")
 	Server := NewServer(":8080")
+
+	go func() {
+		for msg := range Server.msgChan {
+			fmt.Println(string(msg))
+		}
+	}()
+
 	Server.StartServer()
 }
