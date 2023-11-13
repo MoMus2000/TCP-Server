@@ -1,0 +1,5 @@
+Things you can play around with
+1. Creating a simple TCP Server (check)
+2. Creating a simple Broad Cast Server (check)
+3. Experimenting with your own protocol
+4. Making your way towards writing your own http server
